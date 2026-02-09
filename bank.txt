@@ -1,0 +1,472 @@
+mysql> CREATE DATABASE bank_simulation_system;
+Query OK, 1 row affected (0.07 sec)
+
+mysql> USE bank_simulation_system;
+Database changed
+mysql> CREATE TABLE branches (
+    ->     branch_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     branch_name VARCHAR(100) NOT NULL,
+    ->     city VARCHAR(50),
+    ->     IFSC_code VARCHAR(20) UNIQUE
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> CREATE TABLE customers (
+    ->     customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     customer_name VARCHAR(100) NOT NULL,
+    ->     email VARCHAR(100) UNIQUE,
+    ->     phone VARCHAR(15) UNIQUE,
+    ->     address VARCHAR(255),
+    ->     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CREATE TABLE accounts (
+    ->     account_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     account_number VARCHAR(20) UNIQUE NOT NULL,
+    ->     customer_id INT,
+    ->     branch_id INT,
+    ->     account_type ENUM('Savings','Current'),
+    ->     balance DECIMAL(12,2) DEFAULT 0,
+    ->     status ENUM('Active','Closed') DEFAULT 'Active',
+    ->     opened_date DATE,
+    ->     FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    ->     FOREIGN KEY (branch_id) REFERENCES branches(branch_id)
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE transactions (
+    ->     transaction_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     account_id INT,
+    ->     transaction_type ENUM('Deposit','Withdrawal','Transfer'),
+    ->     amount DECIMAL(12,2),
+    ->     transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ->     reference_account VARCHAR(20),
+    ->     FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> INSERT INTO branches (branch_name, city, IFSC_code) VALUES
+    -> ('MG Road Branch','Bangalore','IFSC001'),
+    -> ('BTM Branch','Bangalore','IFSC002'),
+    -> ('City Center Branch','Mysuru','IFSC003');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO customers (customer_name,email,phone,address) VALUES
+    -> ('Sumukh R','sumukh@gmail.com','900000001','Bangalore'),
+    -> ('Sanjay Kumar','sanjay@gmail.com','900000002','Mysuru'),
+    -> ('Sneha Patel','sneha@gmail.com','900000003','Pune'),
+    -> ('Ravi Shah','ravi@gmail.com','900000004','Mumbai'),
+    -> ('Anita Rao','anita@gmail.com','900000005','Hyderabad'),
+    -> ('Suresh B','suresh@gmail.com','900000006','Chennai'),
+    -> ('Meena K','meena@gmail.com','900000007','Coimbatore'),
+    -> ('Rahul Jain','rahul@gmail.com','900000008','Delhi'),
+    -> ('Neha Singh','neha@gmail.com','900000009','Noida'),
+    -> ('Amit Verma','amit@gmail.com','900000010','Indore');
+Query OK, 10 rows affected (0.00 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO accounts (account_number,customer_id,branch_id,account_type,balance,opened_date) VALUES
+    -> ('ACC001',1,1,'Savings',25000,'2024-01-10'),
+    -> ('ACC002',1,2,'Current',40000,'2024-03-05'),
+    -> ('ACC003',2,1,'Savings',15000,'2024-02-20'),
+    -> ('ACC004',3,2,'Savings',50000,'2023-11-15'),
+    -> ('ACC005',4,3,'Current',80000,'2024-01-01'),
+    -> ('ACC006',5,1,'Savings',12000,'2024-05-10'),
+    -> ('ACC007',6,3,'Savings',9000,'2023-12-01'),
+    -> ('ACC008',7,2,'Current',30000,'2024-02-01'),
+    -> ('ACC009',8,1,'Savings',60000,'2024-06-01'),
+    -> ('ACC010',9,3,'Savings',20000,'2024-04-01'),
+    -> ('ACC011',10,2,'Current',45000,'2024-01-15'),
+    -> ('ACC012',2,3,'Savings',10000,'2024-07-01'),
+    -> ('ACC013',3,1,'Savings',35000,'2024-03-01'),
+    -> ('ACC014',4,2,'Current',70000,'2024-05-01'),
+    -> ('ACC015',5,3,'Savings',18000,'2024-06-10');
+Query OK, 15 rows affected (0.00 sec)
+Records: 15  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO transactions (account_id,transaction_type,amount) VALUES
+    -> (1,'Deposit',5000),(1,'Withdrawal',2000),
+    -> (2,'Deposit',10000),(3,'Withdrawal',3000),
+    -> (4,'Deposit',15000),(5,'Deposit',20000),
+    -> (6,'Withdrawal',1000),(7,'Deposit',4000),
+    -> (8,'Withdrawal',5000),(9,'Deposit',8000),
+    -> (10,'Deposit',3000),(11,'Withdrawal',6000),
+    -> (12,'Deposit',7000),(13,'Deposit',9000),
+    -> (14,'Withdrawal',10000),(15,'Deposit',2000),
+    -> (1,'Transfer',3000),(2,'Transfer',3000),
+    -> (3,'Deposit',5000),(4,'Withdrawal',7000);
+Query OK, 20 rows affected (0.01 sec)
+Records: 20  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM customers;
++-------------+---------------+------------------+-----------+------------+---------------------+
+| customer_id | customer_name | email            | phone     | address    | created_at          |
++-------------+---------------+------------------+-----------+------------+---------------------+
+|           1 | Sumukh R      | sumukh@gmail.com | 900000001 | Bangalore  | 2026-02-09 10:58:48 |
+|           2 | Sanjay Kumar  | sanjay@gmail.com | 900000002 | Mysuru     | 2026-02-09 10:58:48 |
+|           3 | Sneha Patel   | sneha@gmail.com  | 900000003 | Pune       | 2026-02-09 10:58:48 |
+|           4 | Ravi Shah     | ravi@gmail.com   | 900000004 | Mumbai     | 2026-02-09 10:58:48 |
+|           5 | Anita Rao     | anita@gmail.com  | 900000005 | Hyderabad  | 2026-02-09 10:58:48 |
+|           6 | Suresh B      | suresh@gmail.com | 900000006 | Chennai    | 2026-02-09 10:58:48 |
+|           7 | Meena K       | meena@gmail.com  | 900000007 | Coimbatore | 2026-02-09 10:58:48 |
+|           8 | Rahul Jain    | rahul@gmail.com  | 900000008 | Delhi      | 2026-02-09 10:58:48 |
+|           9 | Neha Singh    | neha@gmail.com   | 900000009 | Noida      | 2026-02-09 10:58:48 |
+|          10 | Amit Verma    | amit@gmail.com   | 900000010 | Indore     | 2026-02-09 10:58:48 |
++-------------+---------------+------------------+-----------+------------+---------------------+
+10 rows in set (0.00 sec)
+
+mysql> SELECT * FROM accounts WHERE status='Active';
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+| account_id | account_number | customer_id | branch_id | account_type | balance  | status | opened_date |
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+|          1 | ACC001         |           1 |         1 | Savings      | 25000.00 | Active | 2024-01-10  |
+|          2 | ACC002         |           1 |         2 | Current      | 40000.00 | Active | 2024-03-05  |
+|          3 | ACC003         |           2 |         1 | Savings      | 15000.00 | Active | 2024-02-20  |
+|          4 | ACC004         |           3 |         2 | Savings      | 50000.00 | Active | 2023-11-15  |
+|          5 | ACC005         |           4 |         3 | Current      | 80000.00 | Active | 2024-01-01  |
+|          6 | ACC006         |           5 |         1 | Savings      | 12000.00 | Active | 2024-05-10  |
+|          7 | ACC007         |           6 |         3 | Savings      |  9000.00 | Active | 2023-12-01  |
+|          8 | ACC008         |           7 |         2 | Current      | 30000.00 | Active | 2024-02-01  |
+|          9 | ACC009         |           8 |         1 | Savings      | 60000.00 | Active | 2024-06-01  |
+|         10 | ACC010         |           9 |         3 | Savings      | 20000.00 | Active | 2024-04-01  |
+|         11 | ACC011         |          10 |         2 | Current      | 45000.00 | Active | 2024-01-15  |
+|         12 | ACC012         |           2 |         3 | Savings      | 10000.00 | Active | 2024-07-01  |
+|         13 | ACC013         |           3 |         1 | Savings      | 35000.00 | Active | 2024-03-01  |
+|         14 | ACC014         |           4 |         2 | Current      | 70000.00 | Active | 2024-05-01  |
+|         15 | ACC015         |           5 |         3 | Savings      | 18000.00 | Active | 2024-06-10  |
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+15 rows in set (0.00 sec)
+
+mysql> SELECT * FROM accounts WHERE branch_id=1;
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+| account_id | account_number | customer_id | branch_id | account_type | balance  | status | opened_date |
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+|          1 | ACC001         |           1 |         1 | Savings      | 25000.00 | Active | 2024-01-10  |
+|          3 | ACC003         |           2 |         1 | Savings      | 15000.00 | Active | 2024-02-20  |
+|          6 | ACC006         |           5 |         1 | Savings      | 12000.00 | Active | 2024-05-10  |
+|          9 | ACC009         |           8 |         1 | Savings      | 60000.00 | Active | 2024-06-01  |
+|         13 | ACC013         |           3 |         1 | Savings      | 35000.00 | Active | 2024-03-01  |
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT customer_id, COUNT(*) FROM accounts GROUP BY customer_id HAVING COUNT(*)>1;
++-------------+----------+
+| customer_id | COUNT(*) |
++-------------+----------+
+|           1 |        2 |
+|           2 |        2 |
+|           3 |        2 |
+|           4 |        2 |
+|           5 |        2 |
++-------------+----------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM customers WHERE customer_name LIKE 'S%';
++-------------+---------------+------------------+-----------+-----------+---------------------+
+| customer_id | customer_name | email            | phone     | address   | created_at          |
++-------------+---------------+------------------+-----------+-----------+---------------------+
+|           1 | Sumukh R      | sumukh@gmail.com | 900000001 | Bangalore | 2026-02-09 10:58:48 |
+|           2 | Sanjay Kumar  | sanjay@gmail.com | 900000002 | Mysuru    | 2026-02-09 10:58:48 |
+|           3 | Sneha Patel   | sneha@gmail.com  | 900000003 | Pune      | 2026-02-09 10:58:48 |
+|           6 | Suresh B      | suresh@gmail.com | 900000006 | Chennai   | 2026-02-09 10:58:48 |
++-------------+---------------+------------------+-----------+-----------+---------------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM accounts WHERE balance BETWEEN 10000 AND 50000;
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+| account_id | account_number | customer_id | branch_id | account_type | balance  | status | opened_date |
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+|          1 | ACC001         |           1 |         1 | Savings      | 25000.00 | Active | 2024-01-10  |
+|          2 | ACC002         |           1 |         2 | Current      | 40000.00 | Active | 2024-03-05  |
+|          3 | ACC003         |           2 |         1 | Savings      | 15000.00 | Active | 2024-02-20  |
+|          4 | ACC004         |           3 |         2 | Savings      | 50000.00 | Active | 2023-11-15  |
+|          6 | ACC006         |           5 |         1 | Savings      | 12000.00 | Active | 2024-05-10  |
+|          8 | ACC008         |           7 |         2 | Current      | 30000.00 | Active | 2024-02-01  |
+|         10 | ACC010         |           9 |         3 | Savings      | 20000.00 | Active | 2024-04-01  |
+|         11 | ACC011         |          10 |         2 | Current      | 45000.00 | Active | 2024-01-15  |
+|         12 | ACC012         |           2 |         3 | Savings      | 10000.00 | Active | 2024-07-01  |
+|         13 | ACC013         |           3 |         1 | Savings      | 35000.00 | Active | 2024-03-01  |
+|         15 | ACC015         |           5 |         3 | Savings      | 18000.00 | Active | 2024-06-10  |
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+11 rows in set (0.00 sec)
+
+mysql> SELECT * FROM accounts WHERE opened_date > '2024-01-01';
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+| account_id | account_number | customer_id | branch_id | account_type | balance  | status | opened_date |
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+|          1 | ACC001         |           1 |         1 | Savings      | 25000.00 | Active | 2024-01-10  |
+|          2 | ACC002         |           1 |         2 | Current      | 40000.00 | Active | 2024-03-05  |
+|          3 | ACC003         |           2 |         1 | Savings      | 15000.00 | Active | 2024-02-20  |
+|          6 | ACC006         |           5 |         1 | Savings      | 12000.00 | Active | 2024-05-10  |
+|          8 | ACC008         |           7 |         2 | Current      | 30000.00 | Active | 2024-02-01  |
+|          9 | ACC009         |           8 |         1 | Savings      | 60000.00 | Active | 2024-06-01  |
+|         10 | ACC010         |           9 |         3 | Savings      | 20000.00 | Active | 2024-04-01  |
+|         11 | ACC011         |          10 |         2 | Current      | 45000.00 | Active | 2024-01-15  |
+|         12 | ACC012         |           2 |         3 | Savings      | 10000.00 | Active | 2024-07-01  |
+|         13 | ACC013         |           3 |         1 | Savings      | 35000.00 | Active | 2024-03-01  |
+|         14 | ACC014         |           4 |         2 | Current      | 70000.00 | Active | 2024-05-01  |
+|         15 | ACC015         |           5 |         3 | Savings      | 18000.00 | Active | 2024-06-10  |
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+12 rows in set (0.00 sec)
+
+mysql> SELECT * FROM accounts WHERE status='Closed';
+Empty set (0.00 sec)
+
+mysql> SELECT branch_id, SUM(balance) FROM accounts GROUP BY branch_id;
++-----------+--------------+
+| branch_id | SUM(balance) |
++-----------+--------------+
+|         1 |    147000.00 |
+|         2 |    235000.00 |
+|         3 |    137000.00 |
++-----------+--------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT AVG(balance) FROM accounts;
++--------------+
+| AVG(balance) |
++--------------+
+| 34600.000000 |
++--------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT * FROM accounts ORDER BY balance DESC LIMIT 1;
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+| account_id | account_number | customer_id | branch_id | account_type | balance  | status | opened_date |
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+|          5 | ACC005         |           4 |         3 | Current      | 80000.00 | Active | 2024-01-01  |
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT branch_id, COUNT(*) FROM accounts GROUP BY branch_id;
++-----------+----------+
+| branch_id | COUNT(*) |
++-----------+----------+
+|         1 |        5 |
+|         2 |        5 |
+|         3 |        5 |
++-----------+----------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT c.customer_name,a.account_number,b.branch_name,a.balance
+    -> FROM customers c
+    -> JOIN accounts a ON c.customer_id=a.customer_id
+    -> JOIN branches b ON a.branch_id=b.branch_id;
++---------------+----------------+--------------------+----------+
+| customer_name | account_number | branch_name        | balance  |
++---------------+----------------+--------------------+----------+
+| Sumukh R      | ACC001         | MG Road Branch     | 25000.00 |
+| Sanjay Kumar  | ACC003         | MG Road Branch     | 15000.00 |
+| Anita Rao     | ACC006         | MG Road Branch     | 12000.00 |
+| Rahul Jain    | ACC009         | MG Road Branch     | 60000.00 |
+| Sneha Patel   | ACC013         | MG Road Branch     | 35000.00 |
+| Sumukh R      | ACC002         | BTM Branch         | 40000.00 |
+| Sneha Patel   | ACC004         | BTM Branch         | 50000.00 |
+| Meena K       | ACC008         | BTM Branch         | 30000.00 |
+| Amit Verma    | ACC011         | BTM Branch         | 45000.00 |
+| Ravi Shah     | ACC014         | BTM Branch         | 70000.00 |
+| Ravi Shah     | ACC005         | City Center Branch | 80000.00 |
+| Suresh B      | ACC007         | City Center Branch |  9000.00 |
+| Neha Singh    | ACC010         | City Center Branch | 20000.00 |
+| Sanjay Kumar  | ACC012         | City Center Branch | 10000.00 |
+| Anita Rao     | ACC015         | City Center Branch | 18000.00 |
++---------------+----------------+--------------------+----------+
+15 rows in set (0.01 sec)
+
+mysql>
+mysql> SELECT c.customer_name,t.*
+    -> FROM transactions t
+    -> JOIN accounts a ON t.account_id=a.account_id
+    -> JOIN customers c ON a.customer_id=c.customer_id;
++---------------+----------------+------------+------------------+----------+---------------------+-------------------+
+| customer_name | transaction_id | account_id | transaction_type | amount   | transaction_date    | reference_account |
++---------------+----------------+------------+------------------+----------+---------------------+-------------------+
+| Sumukh R      |              1 |          1 | Deposit          |  5000.00 | 2026-02-09 10:59:06 | NULL              |
+| Sumukh R      |              2 |          1 | Withdrawal       |  2000.00 | 2026-02-09 10:59:06 | NULL              |
+| Sumukh R      |             17 |          1 | Transfer         |  3000.00 | 2026-02-09 10:59:06 | NULL              |
+| Sumukh R      |              3 |          2 | Deposit          | 10000.00 | 2026-02-09 10:59:06 | NULL              |
+| Sumukh R      |             18 |          2 | Transfer         |  3000.00 | 2026-02-09 10:59:06 | NULL              |
+| Sanjay Kumar  |              4 |          3 | Withdrawal       |  3000.00 | 2026-02-09 10:59:06 | NULL              |
+| Sanjay Kumar  |             19 |          3 | Deposit          |  5000.00 | 2026-02-09 10:59:06 | NULL              |
+| Sanjay Kumar  |             13 |         12 | Deposit          |  7000.00 | 2026-02-09 10:59:06 | NULL              |
+| Sneha Patel   |              5 |          4 | Deposit          | 15000.00 | 2026-02-09 10:59:06 | NULL              |
+| Sneha Patel   |             20 |          4 | Withdrawal       |  7000.00 | 2026-02-09 10:59:06 | NULL              |
+| Sneha Patel   |             14 |         13 | Deposit          |  9000.00 | 2026-02-09 10:59:06 | NULL              |
+| Ravi Shah     |              6 |          5 | Deposit          | 20000.00 | 2026-02-09 10:59:06 | NULL              |
+| Ravi Shah     |             15 |         14 | Withdrawal       | 10000.00 | 2026-02-09 10:59:06 | NULL              |
+| Anita Rao     |              7 |          6 | Withdrawal       |  1000.00 | 2026-02-09 10:59:06 | NULL              |
+| Anita Rao     |             16 |         15 | Deposit          |  2000.00 | 2026-02-09 10:59:06 | NULL              |
+| Suresh B      |              8 |          7 | Deposit          |  4000.00 | 2026-02-09 10:59:06 | NULL              |
+| Meena K       |              9 |          8 | Withdrawal       |  5000.00 | 2026-02-09 10:59:06 | NULL              |
+| Rahul Jain    |             10 |          9 | Deposit          |  8000.00 | 2026-02-09 10:59:06 | NULL              |
+| Neha Singh    |             11 |         10 | Deposit          |  3000.00 | 2026-02-09 10:59:06 | NULL              |
+| Amit Verma    |             12 |         11 | Withdrawal       |  6000.00 | 2026-02-09 10:59:06 | NULL              |
++---------------+----------------+------------+------------------+----------+---------------------+-------------------+
+20 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT branch_id, SUM(amount)
+    -> FROM transactions
+    -> WHERE transaction_type='Deposit'
+    -> GROUP BY branch_id;
+ERROR 1054 (42S22): Unknown column 'branch_id' in 'field list'
+mysql> SELECT * FROM accounts
+    -> WHERE balance > (SELECT AVG(balance) FROM accounts);
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+| account_id | account_number | customer_id | branch_id | account_type | balance  | status | opened_date |
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+|          2 | ACC002         |           1 |         2 | Current      | 40000.00 | Active | 2024-03-05  |
+|          4 | ACC004         |           3 |         2 | Savings      | 50000.00 | Active | 2023-11-15  |
+|          5 | ACC005         |           4 |         3 | Current      | 80000.00 | Active | 2024-01-01  |
+|          9 | ACC009         |           8 |         1 | Savings      | 60000.00 | Active | 2024-06-01  |
+|         11 | ACC011         |          10 |         2 | Current      | 45000.00 | Active | 2024-01-15  |
+|         13 | ACC013         |           3 |         1 | Savings      | 35000.00 | Active | 2024-03-01  |
+|         14 | ACC014         |           4 |         2 | Current      | 70000.00 | Active | 2024-05-01  |
++------------+----------------+-------------+-----------+--------------+----------+--------+-------------+
+7 rows in set (0.00 sec)
+
+mysql>
+mysql> SELECT branch_id
+    -> FROM accounts
+    -> GROUP BY branch_id
+    -> ORDER BY SUM(balance) DESC
+    -> LIMIT 1;
++-----------+
+| branch_id |
++-----------+
+|         2 |
++-----------+
+1 row in set (0.00 sec)
+
+mysql>
+mysql> SELECT * FROM accounts
+    -> WHERE account_id NOT IN (SELECT DISTINCT account_id FROM transactions);
+Empty set (0.00 sec)
+
+mysql>
+mysql> SELECT customer_id, SUM(balance) total
+    -> FROM accounts
+    -> GROUP BY customer_id
+    -> ORDER BY total DESC
+    -> LIMIT 3;
++-------------+-----------+
+| customer_id | total     |
++-------------+-----------+
+|           4 | 150000.00 |
+|           3 |  85000.00 |
+|           1 |  65000.00 |
++-------------+-----------+
+3 rows in set (0.00 sec)
+
+mysql> CREATE VIEW customer_account_summary AS
+    -> SELECT c.customer_name,a.account_number,b.branch_name,a.balance,a.account_type
+    -> FROM customers c
+    -> JOIN accounts a ON c.customer_id=a.customer_id
+    -> JOIN branches b ON a.branch_id=b.branch_id;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql>
+mysql> SELECT * FROM customer_account_summary;
++---------------+----------------+--------------------+----------+--------------+
+| customer_name | account_number | branch_name        | balance  | account_type |
++---------------+----------------+--------------------+----------+--------------+
+| Sumukh R      | ACC001         | MG Road Branch     | 25000.00 | Savings      |
+| Sanjay Kumar  | ACC003         | MG Road Branch     | 15000.00 | Savings      |
+| Anita Rao     | ACC006         | MG Road Branch     | 12000.00 | Savings      |
+| Rahul Jain    | ACC009         | MG Road Branch     | 60000.00 | Savings      |
+| Sneha Patel   | ACC013         | MG Road Branch     | 35000.00 | Savings      |
+| Sumukh R      | ACC002         | BTM Branch         | 40000.00 | Current      |
+| Sneha Patel   | ACC004         | BTM Branch         | 50000.00 | Savings      |
+| Meena K       | ACC008         | BTM Branch         | 30000.00 | Current      |
+| Amit Verma    | ACC011         | BTM Branch         | 45000.00 | Current      |
+| Ravi Shah     | ACC014         | BTM Branch         | 70000.00 | Current      |
+| Ravi Shah     | ACC005         | City Center Branch | 80000.00 | Current      |
+| Suresh B      | ACC007         | City Center Branch |  9000.00 | Savings      |
+| Neha Singh    | ACC010         | City Center Branch | 20000.00 | Savings      |
+| Sanjay Kumar  | ACC012         | City Center Branch | 10000.00 | Savings      |
+| Anita Rao     | ACC015         | City Center Branch | 18000.00 | Savings      |
++---------------+----------------+--------------------+----------+--------------+
+15 rows in set (0.00 sec)
+
+mysql> DELIMITER $$
+mysql> CREATE PROCEDURE DepositMoney(IN acc_no VARCHAR(20), IN amt DECIMAL(12,2))
+    -> BEGIN
+    ->   UPDATE accounts SET balance=balance+amt WHERE account_number=acc_no;
+    ->   INSERT INTO transactions(account_id,transaction_type,amount)
+    ->   SELECT account_id,'Deposit',amt FROM accounts WHERE account_number=acc_no;
+    -> END$$
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> DELIMITER ;
+mysql> DELIMITER $$
+mysql> CREATE PROCEDURE WithdrawMoney(IN acc_no VARCHAR(20), IN amt DECIMAL(12,2))
+    -> BEGIN
+    ->   IF (SELECT balance FROM accounts WHERE account_number=acc_no) >= amt THEN
+    ->     UPDATE accounts SET balance=balance-amt WHERE account_number=acc_no;
+    ->     INSERT INTO transactions(account_id,transaction_type,amount)
+    ->     SELECT account_id,'Withdrawal',amt FROM accounts WHERE account_number=acc_no;
+    ->   END IF;
+    -> END$$
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> DELIMITER ;
+mysql> DELIMITER $$
+mysql> CREATE PROCEDURE TransferMoney(IN from_acc VARCHAR(20), IN to_acc VARCHAR(20), IN amt DECIMAL(12,2))
+    -> BEGIN
+    ->   IF (SELECT balance FROM accounts WHERE account_number=from_acc) >= amt THEN
+    ->     UPDATE accounts SET balance=balance-amt WHERE account_number=from_acc;
+    ->     UPDATE accounts SET balance=balance+amt WHERE account_number=to_acc;
+    ->
+    ->     INSERT INTO transactions(account_id,transaction_type,amount,reference_account)
+    ->     SELECT account_id,'Transfer',amt,to_acc FROM accounts WHERE account_number=from_acc;
+    ->
+    ->     INSERT INTO transactions(account_id,transaction_type,amount,reference_account)
+    ->     SELECT account_id,'Transfer',amt,from_acc FROM accounts WHERE account_number=to_acc;
+    ->   END IF;
+    -> END$$
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> DELIMITER ;
+mysql> UPDATE customers SET phone='9999999999' WHERE customer_id=1;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> UPDATE accounts SET status='Closed' WHERE account_number='ACC007';
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> DELETE FROM accounts WHERE balance=0 AND status='Closed';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE USER 'teller_user'@'localhost' IDENTIFIED BY 'teller123';
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> GRANT SELECT,INSERT ON bank_simulation_system.transactions TO 'teller_user'@'localhost';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> GRANT SELECT ON bank_simulation_system.accounts TO 'teller_user'@'localhost';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> REVOKE INSERT ON bank_simulation_system.transactions FROM 'teller_user'@'localhost';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> -- Most active customer
+mysql> SELECT customer_id, COUNT(*) FROM transactions t
+    -> JOIN accounts a ON t.account_id=a.account_id
+    -> GROUP BY customer_id ORDER BY COUNT(*) DESC LIMIT 1;
++-------------+----------+
+| customer_id | COUNT(*) |
++-------------+----------+
+|           1 |        5 |
++-------------+----------+
+1 row in set (0.00 sec)
+
+mysql>
+mysql> -- Suspicious accounts (>5 withdrawals/day)
+mysql> SELECT account_id FROM transactions
+    -> WHERE transaction_type='Withdrawal'
+    -> GROUP BY account_id, DATE(transaction_date)
+    -> HAVING COUNT(*)>5;
+Empty set (0.00 sec)
